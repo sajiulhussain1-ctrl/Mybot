@@ -14,7 +14,8 @@ def home():
 def health():
     return "OK", 200
 
-BOT_TOKEN = "8838547784:AAFYDcGPKNTaxkNdWWZ-lV-K0NhbbNGz56Q"
+# Naya Revoked Bot Token Update Kar Diya Gaya Hai
+BOT_TOKEN = "8838547784:AAGLp823nS_JpgVjbSHnOBmQUuFQ_mmMSKc"
 ADMIN_ID = 8871839919
 
 START_PHOTOS = [
@@ -68,10 +69,7 @@ def start_cmd(message):
 @bot.callback_query_handler(func=lambda call: call.data == "pay_qr")
 def send_qr_code(call):
     try:
-        # Telegram ko notify karein
         bot.answer_callback_query(call.id, text="Sending Payment Details...")
-        
-        # User ID direct target karein chat.id ki jagah
         user_id = call.from_user.id
         
         payment_info = (
