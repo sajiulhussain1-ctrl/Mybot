@@ -55,7 +55,21 @@ def send_qr_code(call):
         "3️⃣ Payment complete hone ke baad screenshot is chat me bhejein.\n"
         "4️⃣ Screenshot milne ke baad aapki service instantly start kar di jayegi! ✅"
     )
-    bot.send_photo(call.message.chat.id, photo=QR_CODE_URL, caption=caption_text, parse_mode="HTML")
+    
+    try:
+        # Photo bhejane ki koshish karega
+        bot.send_photo(call.message.chat.id, photo=QR_CODE_URL, caption=caption_text, parse_mode="HTML")
+    except Exception as e:
+        # Agar image link me error aaye toh text detail bhej dega taaki button fail na ho
+        fallback_text = (
+            "📌 <b>Payment Details & Instructions:</b>\n\n"
+            "👉 <b>UPI ID:</b> <code>mitali55@ptaxis</code>\n\n"
+            "1️⃣ Upar di gayi UPI ID par payment karein.\n"
+            "2️⃣ Payment complete hone ke baad screenshot is chat me bhejein.\n"
+            "3️⃣ Screenshot milne ke baad aapki service instantly start kar di jayegi! ✅"
+        )
+        bot.send_message(call.message.chat.id, fallback_text, parse_mode="HTML")
+        
     bot.answer_callback_query(call.id)
 
 @bot.message_handler(content_types=['photo'])
