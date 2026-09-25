@@ -67,19 +67,24 @@ def start_cmd(message):
 
 @bot.callback_query_handler(func=lambda call: call.data == "pay_qr")
 def send_qr_code(call):
-    # Telegram ko batayein ki button press ho gaya hai
-    bot.answer_callback_query(call.id)
-    
-    payment_info = (
-        "📌 <b>Payment Details & Instructions:</b>\n\n"
-        "👉 <b>UPI ID:</b> <code>mitali55@ptaxis</code>\n\n"
-        "1️⃣ Upar di gayi UPI ID par payment karein.\n"
-        "2️⃣ Payment complete hone ke baad screenshot is chat me bhejein.\n"
-        "3️⃣ Screenshot milne ke baad aapki service instantly start kar di jayegi! ✅"
-    )
-    
-    # Fast text response first
-    bot.send_message(call.message.chat.id, payment_info, parse_mode="HTML")
+    try:
+        # Telegram ko notify karein
+        bot.answer_callback_query(call.id, text="Sending Payment Details...")
+        
+        # User ID direct target karein chat.id ki jagah
+        user_id = call.from_user.id
+        
+        payment_info = (
+            "📌 <b>Payment Details & Instructions:</b>\n\n"
+            "👉 <b>UPI ID:</b> <code>mitali55@ptaxis</code>\n\n"
+            "1️⃣ Direct Upar di gayi UPI ID copy karke pay karein.\n"
+            "2️⃣ Payment complete hone ke baad screenshot is chat me bhejein.\n"
+            "3️⃣ Screenshot milne ke baad aapki service instantly start kar di jayegi! ✅"
+        )
+        
+        bot.send_message(user_id, payment_info, parse_mode="HTML")
+    except Exception as e:
+        print("Error sending payment details:", e)
 
 @bot.message_handler(content_types=['photo'])
 def handle_photo(message):
