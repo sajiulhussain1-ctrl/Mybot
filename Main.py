@@ -17,8 +17,9 @@ def run():
 
 Thread(target=run, daemon=True).start()
 
-# Bot Setup
+# Bot Token & Admin Setup
 BOT_TOKEN = "8838547784:AAFYDcGPKNTaxkNdWWZ-lV-K0NhbbNGz56Q"
+ADMIN_ID = 8871839919  # Aapki Telegram User ID
 
 # Aapki 5 HD Promo Photos File IDs
 START_PHOTOS = [
@@ -32,21 +33,33 @@ START_PHOTOS = [
 # Aapki HD QR Code File ID
 QR_CODE_FILE_ID = "AgACAgUAAxkBAAMnarYysY5FAr2oOsMR1HStQjDRUmsAAm4SaxtCi7BVoAXUk2SWYycBAAMCAAN4AAM9BA"
 
-if not os.path.exists('screenshots'):
-    os.makedirs('screenshots')
-
 bot = telebot.TeleBot(BOT_TOKEN)
 
 @bot.message_handler(commands=['start'])
 def start_cmd(message):
-    # 1. Start dabate hi 5 Promo Photos HD me aayengi
+    user = message.from_user
+    username = f"@{user.username}" if user.username else "No Username"
+    
+    # 📢 ADMIN ALERT: Naye user ka visit alert aapke paas aayega
+    admin_alert = (
+        f"👤 <b>New User Visit!</b>\n\n"
+        f"• <b>Name:</b> {user.first_name}\n"
+        f"• <b>Username:</b> {username}\n"
+        f"• <b>User ID:</b> <code>{user.id}</code>"
+    )
+    try:
+        bot.send_message(ADMIN_ID, admin_alert, parse_mode="HTML")
+    except Exception as e:
+        print("Admin alert error:", e)
+
+    # 1. Customer ko 5 HD Promo Photos ka album bhejega
     try:
         media_group = [InputMediaPhoto(photo_id) for photo_id in START_PHOTOS]
         bot.send_media_group(message.chat.id, media_group)
     except Exception as e:
         print("Media group send error:", e)
 
-    # 2. Rates aur Pay Button
+    # 2. Rate List & Payment Button
     pricing_text = (
         "<b>✨ Welcome to Taniya Exclusive Service ✨</b>\n\n"
         "🔥 <b>Available Rates & Packages:</b>\n\n"
@@ -78,7 +91,6 @@ def send_qr_code(call):
         # HD QR Code Photo ke saath UPI ID caption me aayegi
         bot.send_photo(call.message.chat.id, photo=QR_CODE_FILE_ID, caption=caption_text, parse_mode="HTML")
     except Exception as e:
-        print("Photo send error:", e)
         fallback_text = (
             "📌 <b>Payment Details & Instructions:</b>\n\n"
             "👉 <b>UPI ID:</b> <code>mitali55@ptaxis</code>\n\n"
@@ -92,13 +104,24 @@ def send_qr_code(call):
 
 @bot.message_handler(content_types=['photo'])
 def handle_photo(message):
-    file_info = bot.get_file(message.photo[-1].file_id)
-    downloaded_file = bot.download_file(file_info.file_path)
+    user = message.from_user
+    username = f"@{user.username}" if user.username else "No Username"
+    photo_file_id = message.photo[-1].file_id
 
-    file_name = f"screenshots/{message.from_user.id}_{message.message_id}.jpg"
-    with open(file_name, 'wb') as new_file:
-        new_file.write(downloaded_file)
+    # 💰 ADMIN ALERT: Screenshot direct aapke personal account par aayega
+    caption = (
+        f"🚨 <b>NEW PAYMENT SCREENSHOT RECEIVED!</b> 🚨\n\n"
+        f"• <b>From User:</b> {user.first_name}\n"
+        f"• <b>Username:</b> {username}\n"
+        f"• <b>User ID:</b> <code>{user.id}</code>"
+    )
+    
+    try:
+        bot.send_photo(ADMIN_ID, photo=photo_file_id, caption=caption, parse_mode="HTML")
+    except Exception as e:
+        print("Failed to send screenshot to admin:", e)
 
+    # Customer ko automated confirmation reply
     bot.reply_to(message, "✅ <b>Payment Screenshot Received!</b>\nHum aapka payment verify kar rahe hain. Aapki service instant receive ho jayegi.", parse_mode="HTML")
 
 bot.infinity_polling(timeout=10, long_polling_timeout=5)
