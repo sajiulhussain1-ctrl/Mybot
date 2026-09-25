@@ -20,7 +20,7 @@ Thread(target=run, daemon=True).start()
 # Bot Setup
 BOT_TOKEN = "8838547784:AAFYDcGPKNTaxkNdWWZ-lV-K0NhbbNGz56Q"
 
-# 5 High-Definition Promo Photos
+# Aapki 5 HD Promo Photos File IDs
 START_PHOTOS = [
     "AgACAgUAAxkBAAM9arY0RSMLm_ceAhQLTtkl67RmHVQAAnYRaxvRprBVNfoyGs0zCpYBAAMCAAN4AAM9BA",
     "AgACAgUAAxkBAAM3arYzmwYknDv6zsIiT3c0KD5f844AAnQRaxvRprBVVpvbLoUMSWIBAAMCAAN4AAM9BA",
@@ -29,7 +29,7 @@ START_PHOTOS = [
     "AgACAgUAAxkBAANFarY0V90s50KM8xU4IE8v2efwS1QAAnkRaxvRprBV1HYT58Mm_mABAAMCAAN4AAM9BA"
 ]
 
-# Aapka Permanent HD QR Code File ID
+# Aapki HD QR Code File ID
 QR_CODE_FILE_ID = "AgACAgUAAxkBAAMnarYysY5FAr2oOsMR1HStQjDRUmsAAm4SaxtCi7BVoAXUk2SWYycBAAMCAAN4AAM9BA"
 
 if not os.path.exists('screenshots'):
@@ -39,14 +39,14 @@ bot = telebot.TeleBot(BOT_TOKEN)
 
 @bot.message_handler(commands=['start'])
 def start_cmd(message):
-    # 1. Start dabate hi HD Promo Photos ka album aayega
+    # 1. Start dabate hi 5 Promo Photos HD me aayengi
     try:
         media_group = [InputMediaPhoto(photo_id) for photo_id in START_PHOTOS]
         bot.send_media_group(message.chat.id, media_group)
     except Exception as e:
         print("Media group send error:", e)
 
-    # 2. Price list and Payment button
+    # 2. Rates aur Pay Button
     pricing_text = (
         "<b>✨ Welcome to Taniya Exclusive Service ✨</b>\n\n"
         "🔥 <b>Available Rates & Packages:</b>\n\n"
@@ -75,11 +75,10 @@ def send_qr_code(call):
     )
     
     try:
-        # QR Code Photo ke sath UPI ID caption me aayegi
+        # HD QR Code Photo ke saath UPI ID caption me aayegi
         bot.send_photo(call.message.chat.id, photo=QR_CODE_FILE_ID, caption=caption_text, parse_mode="HTML")
     except Exception as e:
         print("Photo send error:", e)
-        # Fallback text in case of any network glitch
         fallback_text = (
             "📌 <b>Payment Details & Instructions:</b>\n\n"
             "👉 <b>UPI ID:</b> <code>mitali55@ptaxis</code>\n\n"
@@ -93,7 +92,6 @@ def send_qr_code(call):
 
 @bot.message_handler(content_types=['photo'])
 def handle_photo(message):
-    # Customer ka payment screenshot save karega
     file_info = bot.get_file(message.photo[-1].file_id)
     downloaded_file = bot.download_file(file_info.file_path)
 
