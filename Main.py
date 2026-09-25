@@ -19,7 +19,8 @@ Thread(target=run, daemon=True).start()
 # Bot Setup
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-BOT_TOKEN = "NAYA_TOKEN_YAHAN"
+BOT_TOKEN = "8838547784:AAFYDcGPKNTaxkNdWWZ-lV-K0NhbbNGz56Q"
+QR_CODE_URL = "https://i.ibb.co/C0315k2/qr.png"
 
 if not os.path.exists('screenshots'):
     os.makedirs('screenshots')
@@ -48,12 +49,13 @@ def start_cmd(message):
 def send_qr_code(call):
     caption_text = (
         "📌 <b>Payment Details & Instructions:</b>\n\n"
-        "1️⃣ Niche diye gaye UPI ID par payment karein:\n"
-        "   • <b>UPI ID:</b> <code>yourupiid@upi</code>\n\n"
-        "2️⃣ Payment complete hone ke baad screenshot is chat me bhejein.\n"
-        "3️⃣ Screenshot milne ke baad aapki service instantly start kar di jayegi! ✅"
+        "1️⃣ <b>Option 1:</b> Upar diye gaye QR Code ko scan karke payment karein.\n"
+        "2️⃣ <b>Option 2:</b> Direct UPI ID par pay karein:\n"
+        "   • <b>UPI ID:</b> <code>mitali55@ptaxis</code>\n\n"
+        "3️⃣ Payment complete hone ke baad screenshot is chat me bhejein.\n"
+        "4️⃣ Screenshot milne ke baad aapki service instantly start kar di jayegi! ✅"
     )
-    bot.send_message(call.message.chat.id, caption_text, parse_mode="HTML")
+    bot.send_photo(call.message.chat.id, photo=QR_CODE_URL, caption=caption_text, parse_mode="HTML")
     bot.answer_callback_query(call.id)
 
 @bot.message_handler(content_types=['photo'])
