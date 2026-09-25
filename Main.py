@@ -14,7 +14,7 @@ def home():
 def health():
     return "OK", 200
 
-# Naya Revoked Bot Token Update Kar Diya Gaya Hai
+# Updated Revoked Bot Token
 BOT_TOKEN = "8838547784:AAGLp823nS_JpgVjbSHnOBmQUuFQ_mmMSKc"
 ADMIN_ID = 8871839919
 
