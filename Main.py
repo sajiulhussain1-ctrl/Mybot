@@ -4,6 +4,7 @@ from flask import Flask
 from threading import Thread
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, InputMediaPhoto
 
+# Flask App setup for Render Keep-Alive Heartbeat
 app = Flask('')
 
 @app.route('/')
@@ -16,28 +17,36 @@ def run():
 
 Thread(target=run, daemon=True).start()
 
+# Bot Setup
 BOT_TOKEN = "8838547784:AAFYDcGPKNTaxkNdWWZ-lV-K0NhbbNGz56Q"
 
-# Temporary links
-QR_CODE_URL = "https://i.ibb.co/C0315k2/qr.png"
+# 5 High-Definition Promo Photos
 START_PHOTOS = [
-    "https://i.ibb.co/LBWL674/image.jpg",
-    "https://i.ibb.co/V0ht4ST/image.jpg",
-    "https://i.ibb.co/HfH47ZT/image.jpg",
-    "https://i.ibb.co/7dspqTH/image.jpg",
-    "https://i.ibb.co/hxkBBHW/image.jpg"
+    "AgACAgUAAxkBAAM9arY0RSMLm_ceAhQLTtkl67RmHVQAAnYRaxvRprBVNfoyGs0zCpYBAAMCAAN4AAM9BA",
+    "AgACAgUAAxkBAAM3arYzmwYknDv6zsIiT3c0KD5f844AAnQRaxvRprBVVpvbLoUMSWIBAAMCAAN4AAM9BA",
+    "AgACAgUAAxkBAANBarY0T7yDAAGC_OrWBuG13FsfpC-FAAJ3EWsb0aawVSlICQq9dJuJAQADAgADeAADPQQ",
+    "AgACAgUAAxkBAANDarY0VUamO1E7Z-fHtJG8mtLXsbcAAngRaxvRprBVrD-Ac9UBf1QBAAMCAAN4AAM9BA",
+    "AgACAgUAAxkBAANFarY0V90s50KM8xU4IE8v2efwS1QAAnkRaxvRprBV1HYT58Mm_mABAAMCAAN4AAM9BA"
 ]
+
+# Aapka Permanent HD QR Code File ID
+QR_CODE_FILE_ID = "AgACAgUAAxkBAAMnarYysY5FAr2oOsMR1HStQjDRUmsAAm4SaxtCi7BVoAXUk2SWYycBAAMCAAN4AAM9BA"
+
+if not os.path.exists('screenshots'):
+    os.makedirs('screenshots')
 
 bot = telebot.TeleBot(BOT_TOKEN)
 
 @bot.message_handler(commands=['start'])
 def start_cmd(message):
+    # 1. Start dabate hi HD Promo Photos ka album aayega
     try:
-        media_group = [InputMediaPhoto(url) for url in START_PHOTOS]
+        media_group = [InputMediaPhoto(photo_id) for photo_id in START_PHOTOS]
         bot.send_media_group(message.chat.id, media_group)
     except Exception as e:
-        print("Media group error:", e)
+        print("Media group send error:", e)
 
+    # 2. Price list and Payment button
     pricing_text = (
         "<b>✨ Welcome to Taniya Exclusive Service ✨</b>\n\n"
         "🔥 <b>Available Rates & Packages:</b>\n\n"
@@ -66,8 +75,11 @@ def send_qr_code(call):
     )
     
     try:
-        bot.send_photo(call.message.chat.id, photo=QR_CODE_URL, caption=caption_text, parse_mode="HTML")
+        # QR Code Photo ke sath UPI ID caption me aayegi
+        bot.send_photo(call.message.chat.id, photo=QR_CODE_FILE_ID, caption=caption_text, parse_mode="HTML")
     except Exception as e:
+        print("Photo send error:", e)
+        # Fallback text in case of any network glitch
         fallback_text = (
             "📌 <b>Payment Details & Instructions:</b>\n\n"
             "👉 <b>UPI ID:</b> <code>mitali55@ptaxis</code>\n\n"
@@ -79,10 +91,16 @@ def send_qr_code(call):
         
     bot.answer_callback_query(call.id)
 
-# HD Photo File ID Reply Handler
 @bot.message_handler(content_types=['photo'])
 def handle_photo(message):
-    file_id = message.photo[-1].file_id
-    bot.reply_to(message, f"<b>HD Photo ID:</b>\n<code>{file_id}</code>", parse_mode="HTML")
+    # Customer ka payment screenshot save karega
+    file_info = bot.get_file(message.photo[-1].file_id)
+    downloaded_file = bot.download_file(file_info.file_path)
+
+    file_name = f"screenshots/{message.from_user.id}_{message.message_id}.jpg"
+    with open(file_name, 'wb') as new_file:
+        new_file.write(downloaded_file)
+
+    bot.reply_to(message, "✅ <b>Payment Screenshot Received!</b>\nHum aapka payment verify kar rahe hain. Aapki service instant receive ho jayegi.", parse_mode="HTML")
 
 bot.infinity_polling(timeout=10, long_polling_timeout=5)
