@@ -19,8 +19,7 @@ Thread(target=run, daemon=True).start()
 # Bot Setup
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-BOT_TOKEN = "8838547784:AAFYDcGPKNTaxkNdWWZ-lV-K0NhbbNGz56Q"
-QR_CODE_URL = "https://i.ibb.co/68032549/image.png"
+BOT_TOKEN = "NAYA_TOKEN_YAHAN"
 
 if not os.path.exists('screenshots'):
     os.makedirs('screenshots')
@@ -30,11 +29,12 @@ bot = telebot.TeleBot(BOT_TOKEN)
 @bot.message_handler(commands=['start'])
 def start_cmd(message):
     pricing_text = (
-        "<b>✨ Welcome to Taniya Exclusive Official Bot! ✨</b>\n\n"
-        "🔥 <b>Exclusive VIP Membership Plans</b> 🔥\n\n"
-        "🔹 <b>1 Month VIP:</b> ₹199\n"
-        "🔹 <b>3 Months VIP:</b> ₹399\n"
-        "🔹 <b>Lifetime VIP:</b> ₹699\n\n"
+        "<b>✨ Welcome to Taniya Exclusive Service ✨</b>\n\n"
+        "🔥 <b>Available Rates & Packages:</b>\n\n"
+        "📹 <b>2 Min Open Video:</b> ₹150\n"
+        "📹 <b>5 Min Open Video:</b> ₹300\n"
+        "👩‍🦰 <b>10 Min Video (With Face):</b> ₹500\n"
+        "📞 <b>WhatsApp Video Call (VC):</b> ₹700\n\n"
         "👇 <b>Payment karne ke liye niche 'Pay Now / Scan QR' button par click karein!</b>"
     )
     
@@ -47,12 +47,13 @@ def start_cmd(message):
 @bot.callback_query_handler(func=lambda call: call.data == "pay_qr")
 def send_qr_code(call):
     caption_text = (
-        "📌 <b>Payment Instruction:</b>\n\n"
-        "1️⃣ Upar diye gaye QR Code ko scan karke payment karein.\n"
-        "2️⃣ Payment hone ke baad screenshot yahan chat me bhejein.\n"
-        "3️⃣ Screenshot milne ke baad aapka VIP Access instantly activate kar diya jayega!"
+        "📌 <b>Payment Details & Instructions:</b>\n\n"
+        "1️⃣ Niche diye gaye UPI ID par payment karein:\n"
+        "   • <b>UPI ID:</b> <code>yourupiid@upi</code>\n\n"
+        "2️⃣ Payment complete hone ke baad screenshot is chat me bhejein.\n"
+        "3️⃣ Screenshot milne ke baad aapki service instantly start kar di jayegi! ✅"
     )
-    bot.send_photo(call.message.chat.id, photo=QR_CODE_URL, caption=caption_text, parse_mode="HTML")
+    bot.send_message(call.message.chat.id, caption_text, parse_mode="HTML")
     bot.answer_callback_query(call.id)
 
 @bot.message_handler(content_types=['photo'])
@@ -64,7 +65,7 @@ def handle_photo(message):
     with open(file_name, 'wb') as new_file:
         new_file.write(downloaded_file)
 
-    bot.reply_to(message, "✅ <b>Payment Screenshot Received!</b>\nHum aapka payment verify kar rahe hain. Jaldi hi VIP link bhej diya jayega.", parse_mode="HTML")
+    bot.reply_to(message, "✅ <b>Payment Screenshot Received!</b>\nHum aapka payment verify kar rahe hain. Aapki service instant receive ho jayegi.", parse_mode="HTML")
 
 # Continuous Polling Loop
 bot.infinity_polling(timeout=10, long_polling_timeout=5)
