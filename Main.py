@@ -70,24 +70,25 @@ def start_cmd(message):
 @bot.callback_query_handler(func=lambda call: call.data == "pay_qr")
 def send_qr_code(call):
     try:
-        bot.answer_callback_query(call.id, text="Generating UPI QR Code...")
+        bot.answer_callback_query(call.id, text="Generating Payment QR...")
         user_id = call.from_user.id
         
-        # Dynamic UPI QR Code URL Generation
-        qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=upi://pay?pa={UPI_ID}%26pn=Taniya%20Exclusive"
+        # High-Speed Google Charts UPI QR URL
+        google_qr_url = f"https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=upi://pay?pa={UPI_ID}%26pn=Taniya%20Service"
         
         payment_info = (
             "📌 <b>Payment Details & QR Code:</b>\n\n"
             f"👉 <b>UPI ID:</b> <code>{UPI_ID}</code>\n\n"
-            "1️⃣ Upar diye gaye QR Code ko kisi bhi App (PhonePe, Paytm, GooglePay) se scan karein.\n"
+            "1️⃣ Upar QR Code ko kisi bhi App (PhonePe, Paytm, GooglePay) se scan karein.\n"
             "2️⃣ Ya UPI ID copy karke direct payment karein.\n"
             "3️⃣ Payment complete hone ke baad screenshot is chat me bhejein! ✅"
         )
         
-        # User ko Photo (QR Code) + Text Caption ek sath bhejna
-        bot.send_photo(user_id, photo=qr_url, caption=payment_info, parse_mode="HTML")
+        bot.send_photo(user_id, photo=google_qr_url, caption=payment_info, parse_mode="HTML")
     except Exception as e:
-        print("Error sending QR and payment details:", e)
+        print("Error sending QR:", e)
+        # Fallback if image fails
+        bot.send_message(call.from_user.id, f"📌 <b>UPI ID:</b> <code>{UPI_ID}</code>\n\nScreenshot yahan bhejein!", parse_mode="HTML")
 
 @bot.message_handler(content_types=['photo'])
 def handle_photo(message):
