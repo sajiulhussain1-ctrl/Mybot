@@ -18,8 +18,8 @@ Thread(target=run, daemon=True).start()
 
 BOT_TOKEN = "8838547784:AAFYDcGPKNTaxkNdWWZ-lV-K0NhbbNGz56Q"
 
-# Temp placeholder URLs
-QR_CODE_URL = "https://i.ibb.co/C0315k2/qr.png" 
+# Temporary links
+QR_CODE_URL = "https://i.ibb.co/C0315k2/qr.png"
 START_PHOTOS = [
     "https://i.ibb.co/LBWL674/image.jpg",
     "https://i.ibb.co/V0ht4ST/image.jpg",
@@ -79,10 +79,10 @@ def send_qr_code(call):
         
     bot.answer_callback_query(call.id)
 
-# Direct HD Photo File ID Extractor
+# HD Photo File ID Reply Handler
 @bot.message_handler(content_types=['photo'])
-def get_file_id(message):
-    photo_id = message.photo[-1].file_id
-    bot.reply_to(message, f"<b>Photo HD ID:</b>\n<code>{photo_id}</code>", parse_mode="HTML")
+def handle_photo(message):
+    file_id = message.photo[-1].file_id
+    bot.reply_to(message, f"<b>HD Photo ID:</b>\n<code>{file_id}</code>", parse_mode="HTML")
 
 bot.infinity_polling(timeout=10, long_polling_timeout=5)
