@@ -19,7 +19,7 @@ Thread(target=run, daemon=True).start()
 # Bot Setup
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-BOT_TOKEN = "8986124658:AAEHNiey_GDxU-Z3CQKg6_p44S"
+BOT_TOKEN = "8838547784:AAFYDcGPKNTaxkNdWWZ-lV-K0NhbbNGz56Q"
 QR_CODE_URL = "https://i.ibb.co/68032549/image.png"
 
 if not os.path.exists('screenshots'):
@@ -64,7 +64,7 @@ def handle_photo(message):
     with open(file_name, 'wb') as new_file:
         new_file.write(downloaded_file)
 
-    bot.reply_to(message, "✅ **Payment Screenshot Received!**\nHum aapka payment verify kar rahe hain. Jaldi hi VIP link bhej diya jayega.", parse_mode="Markdown")
+    bot.reply_to(message, "✅ <b>Payment Screenshot Received!</b>\nHum aapka payment verify kar rahe hain. Jaldi hi VIP link bhej diya jayega.", parse_mode="HTML")
 
 # Continuous Polling Loop
 bot.infinity_polling(timeout=10, long_polling_timeout=5)
