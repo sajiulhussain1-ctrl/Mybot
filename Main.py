@@ -2,6 +2,7 @@ import os
 import telebot
 from flask import Flask
 from threading import Thread
+from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, InputMediaPhoto
 
 # Flask App setup for Render Keep-Alive Heartbeat
 app = Flask('')
@@ -17,10 +18,17 @@ def run():
 Thread(target=run, daemon=True).start()
 
 # Bot Setup
-from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
-
 BOT_TOKEN = "8838547784:AAFYDcGPKNTaxkNdWWZ-lV-K0NhbbNGz56Q"
 QR_CODE_URL = "https://i.ibb.co/C0315k2/qr.png"
+
+# Aapke 5 Promo Photos ke Direct Links:
+START_PHOTOS = [
+    "https://i.ibb.co/LBWL674/image.jpg",
+    "https://i.ibb.co/V0ht4STK/image.jpg",
+    "https://i.ibb.co/HfH47ZT3/image.jpg",
+    "https://i.ibb.co/7dspqTHk/image.jpg",
+    "https://i.ibb.co/hxkBBHWW/image.jpg"
+]
 
 if not os.path.exists('screenshots'):
     os.makedirs('screenshots')
@@ -29,6 +37,14 @@ bot = telebot.TeleBot(BOT_TOKEN)
 
 @bot.message_handler(commands=['start'])
 def start_cmd(message):
+    # 1. Start dabate hi pehle 5 Promo Photos aayengi
+    try:
+        media_group = [InputMediaPhoto(url) for url in START_PHOTOS]
+        bot.send_media_group(message.chat.id, media_group)
+    except Exception as e:
+        print("Media group send error:", e)
+
+    # 2. Photos ke sath Rates & Pay Button aayega
     pricing_text = (
         "<b>✨ Welcome to Taniya Exclusive Service ✨</b>\n\n"
         "🔥 <b>Available Rates & Packages:</b>\n\n"
@@ -43,7 +59,7 @@ def start_cmd(message):
     btn_pay = InlineKeyboardButton("💳 Pay Now / Scan QR", callback_data="pay_qr")
     markup.add(btn_pay)
     
-    bot.reply_to(message, pricing_text, parse_mode="HTML", reply_markup=markup)
+    bot.send_message(message.chat.id, pricing_text, parse_mode="HTML", reply_markup=markup)
 
 @bot.callback_query_handler(func=lambda call: call.data == "pay_qr")
 def send_qr_code(call):
@@ -57,10 +73,8 @@ def send_qr_code(call):
     )
     
     try:
-        # Photo bhejane ki koshish karega
         bot.send_photo(call.message.chat.id, photo=QR_CODE_URL, caption=caption_text, parse_mode="HTML")
     except Exception as e:
-        # Agar image link me error aaye toh text detail bhej dega taaki button fail na ho
         fallback_text = (
             "📌 <b>Payment Details & Instructions:</b>\n\n"
             "👉 <b>UPI ID:</b> <code>mitali55@ptaxis</code>\n\n"
