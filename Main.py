@@ -1,5 +1,7 @@
 import os
 import telebot
+import requests
+from io import BytesIO
 from flask import Flask
 from threading import Thread
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, InputMediaPhoto
@@ -70,14 +72,14 @@ def start_cmd(message):
 @bot.callback_query_handler(func=lambda call: call.data == "pay_qr")
 def send_qr_code(call):
     try:
-        bot.answer_callback_query(call.id, text="Sending QR Code...")
+        bot.answer_callback_query(call.id, text="Generating QR Code...")
         user_id = call.from_user.id
         
-        qr_img_url = f"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=upi://pay?pa={UPI_ID}%26pn=Taniya%20Service"
+        # Image bytes fetch using requests
+        qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=upi://pay?pa={UPI_ID}%26pn=Taniya%20Service"
+        res = requests.get(qr_url)
         
-        # HTML Embedded Image Preview Method
         payment_info = (
-            f'<a href="{qr_img_url}">&#8203;</a>'
             "📌 <b>Payment Details & QR Code:</b>\n\n"
             f"👉 <b>UPI ID:</b> <code>{UPI_ID}</code>\n\n"
             "1️⃣ Upar dikh rahe QR Code ko Kisi bhi App (PhonePe, Paytm, GooglePay) se scan karein.\n"
@@ -85,7 +87,13 @@ def send_qr_code(call):
             "3️⃣ Payment complete hone ke baad screenshot yahan bhejein! ✅"
         )
         
-        bot.send_message(user_id, payment_info, parse_mode="HTML")
+        if res.status_code == 200:
+            qr_file = BytesIO(res.content)
+            qr_file.name = 'qr.png'
+            bot.send_photo(user_id, photo=qr_file, caption=payment_info, parse_mode="HTML")
+        else:
+            bot.send_message(user_id, payment_info, parse_mode="HTML")
+
     except Exception as e:
         print("Error sending QR:", e)
 
