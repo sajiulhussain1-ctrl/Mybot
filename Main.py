@@ -4,7 +4,6 @@ from flask import Flask
 from threading import Thread
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, InputMediaPhoto
 
-# Flask App setup for Render Keep-Alive Heartbeat
 app = Flask('')
 
 @app.route('/')
@@ -17,34 +16,28 @@ def run():
 
 Thread(target=run, daemon=True).start()
 
-# Bot Setup
 BOT_TOKEN = "8838547784:AAFYDcGPKNTaxkNdWWZ-lV-K0NhbbNGz56Q"
-QR_CODE_URL = "https://i.ibb.co/C0315k2/qr.png"
 
-# Aapke 5 Promo Photos ke Direct Links:
+# Temp placeholder URLs
+QR_CODE_URL = "https://i.ibb.co/C0315k2/qr.png" 
 START_PHOTOS = [
     "https://i.ibb.co/LBWL674/image.jpg",
-    "https://i.ibb.co/V0ht4STK/image.jpg",
-    "https://i.ibb.co/HfH47ZT3/image.jpg",
-    "https://i.ibb.co/7dspqTHk/image.jpg",
-    "https://i.ibb.co/hxkBBHWW/image.jpg"
+    "https://i.ibb.co/V0ht4ST/image.jpg",
+    "https://i.ibb.co/HfH47ZT/image.jpg",
+    "https://i.ibb.co/7dspqTH/image.jpg",
+    "https://i.ibb.co/hxkBBHW/image.jpg"
 ]
-
-if not os.path.exists('screenshots'):
-    os.makedirs('screenshots')
 
 bot = telebot.TeleBot(BOT_TOKEN)
 
 @bot.message_handler(commands=['start'])
 def start_cmd(message):
-    # 1. Start dabate hi pehle 5 Promo Photos aayengi
     try:
         media_group = [InputMediaPhoto(url) for url in START_PHOTOS]
         bot.send_media_group(message.chat.id, media_group)
     except Exception as e:
-        print("Media group send error:", e)
+        print("Media group error:", e)
 
-    # 2. Photos ke sath Rates & Pay Button aayega
     pricing_text = (
         "<b>✨ Welcome to Taniya Exclusive Service ✨</b>\n\n"
         "🔥 <b>Available Rates & Packages:</b>\n\n"
@@ -86,16 +79,10 @@ def send_qr_code(call):
         
     bot.answer_callback_query(call.id)
 
+# Direct HD Photo File ID Extractor
 @bot.message_handler(content_types=['photo'])
-def handle_photo(message):
-    file_info = bot.get_file(message.photo[-1].file_id)
-    downloaded_file = bot.download_file(file_info.file_path)
+def get_file_id(message):
+    photo_id = message.photo[-1].file_id
+    bot.reply_to(message, f"<b>Photo HD ID:</b>\n<code>{photo_id}</code>", parse_mode="HTML")
 
-    file_name = f"screenshots/{message.from_user.id}_{message.message_id}.jpg"
-    with open(file_name, 'wb') as new_file:
-        new_file.write(downloaded_file)
-
-    bot.reply_to(message, "✅ <b>Payment Screenshot Received!</b>\nHum aapka payment verify kar rahe hain. Aapki service instant receive ho jayegi.", parse_mode="HTML")
-
-# Continuous Polling Loop
 bot.infinity_polling(timeout=10, long_polling_timeout=5)
