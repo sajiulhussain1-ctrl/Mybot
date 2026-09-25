@@ -25,8 +25,6 @@ START_PHOTOS = [
     "AgACAgUAAxkBAANFarY0V90s50KM8xU4IE8v2efwS1QAAnkRaxvRprBV1HYT58Mm_mABAAMCAAN4AAM9BA"
 ]
 
-QR_CODE_FILE_ID = "AgACAgUAAxkBAAMnarYysY5FAr2oOsMR1HStQjDRUmsAAm4SaxtCi7BVoAXUk2SWYycBAAMCAAN4AAM9BA"
-
 bot = telebot.TeleBot(BOT_TOKEN)
 
 @bot.message_handler(commands=['start'])
@@ -69,22 +67,19 @@ def start_cmd(message):
 
 @bot.callback_query_handler(func=lambda call: call.data == "pay_qr")
 def send_qr_code(call):
-    # Callback answer immediately send taaki button loading loop na ho
-    bot.answer_callback_query(call.id, text="Loading Payment Details...")
+    # Telegram ko batayein ki button press ho gaya hai
+    bot.answer_callback_query(call.id)
     
-    caption_text = (
+    payment_info = (
         "📌 <b>Payment Details & Instructions:</b>\n\n"
-        "1️⃣ <b>UPI ID:</b> <code>mitali55@ptaxis</code>\n\n"
-        "2️⃣ Direct UPI ID copy karke pay karein ya QR code scan karein.\n"
-        "3️⃣ Payment complete hone ke baad screenshot is chat me bhejein.\n"
-        "4️⃣ Screenshot milne ke baad aapki service instantly start kar di jayegi! ✅"
+        "👉 <b>UPI ID:</b> <code>mitali55@ptaxis</code>\n\n"
+        "1️⃣ Upar di gayi UPI ID par payment karein.\n"
+        "2️⃣ Payment complete hone ke baad screenshot is chat me bhejein.\n"
+        "3️⃣ Screenshot milne ke baad aapki service instantly start kar di jayegi! ✅"
     )
     
-    try:
-        bot.send_photo(call.message.chat.id, photo=QR_CODE_FILE_ID, caption=caption_text, parse_mode="HTML")
-    except Exception as e:
-        print("QR Photo error, sending fallback text:", e)
-        bot.send_message(call.message.chat.id, caption_text, parse_mode="HTML")
+    # Fast text response first
+    bot.send_message(call.message.chat.id, payment_info, parse_mode="HTML")
 
 @bot.message_handler(content_types=['photo'])
 def handle_photo(message):
