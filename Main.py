@@ -1,5 +1,7 @@
 import os
 import telebot
+import requests
+from io import BytesIO
 from flask import Flask
 from threading import Thread
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, InputMediaPhoto
@@ -14,13 +16,10 @@ def home():
 def health():
     return "OK", 200
 
-# Credentials & Credentials Setup
+# Credentials & Settings
 BOT_TOKEN = "8838547784:AAGLp823nS_JpgVjbSHnOBmQUuFQ_mmMSKc"
 ADMIN_ID = 8871839919
-UPI_ID = "paytmqr5ijy2n@ptys"
-
-# Agar direct photo file_id mil jaye to yahan paste karein, nahi to default blank
-CUSTOM_QR_FILE_ID = ""
+UPI_ID = "mitali55@ptaxis"
 
 START_PHOTOS = [
     "AgACAgUAAxkBAAM9arY0RSMLm_ceAhQLTtkl67RmHVQAAnYRaxvRprBVNfoyGs0zCpYBAAMCAAN4AAM9BA",
@@ -73,27 +72,30 @@ def start_cmd(message):
 @bot.callback_query_handler(func=lambda call: call.data == "pay_qr")
 def send_qr_code(call):
     try:
-        bot.answer_callback_query(call.id, text="Sending Payment QR...")
+        bot.answer_callback_query(call.id, text="Generating QR Code...")
         user_id = call.from_user.id
+        
+        # Requests buffer for exact scan-able QR Code generation
+        qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=upi://pay?pa={UPI_ID}%26pn=Taniya%20Service"
+        res = requests.get(qr_url)
         
         payment_info = (
             "📌 <b>Payment Details & QR Code:</b>\n\n"
             f"👉 <b>UPI ID:</b> <code>{UPI_ID}</code>\n\n"
-            "1️⃣ Scan QR Code from PhonePe / Paytm / GooglePay.\n"
-            "2️⃣ Or copy the UPI ID above to make payment.\n"
-            "3️⃣ Send screenshot after payment! ✅"
+            "1️⃣ Upar dikh rahe QR Code ko kisi bhi App (PhonePe, Paytm, GooglePay) se scan karein.\n"
+            "2️⃣ Ya direct UPI ID copy karke pay karein.\n"
+            "3️⃣ Payment complete hone ke baad screenshot yahan bhejein! ✅"
         )
         
-        # Priority to Telegram Native File ID if available, otherwise dynamic fallback
-        if CUSTOM_QR_FILE_ID:
-            bot.send_photo(user_id, photo=CUSTOM_QR_FILE_ID, caption=payment_info, parse_mode="HTML")
+        if res.status_code == 200:
+            qr_file = BytesIO(res.content)
+            qr_file.name = 'qr.png'
+            bot.send_photo(user_id, photo=qr_file, caption=payment_info, parse_mode="HTML")
         else:
-            qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=upi://pay?pa={UPI_ID}%26pn=Paytm%20QR"
-            bot.send_photo(user_id, photo=qr_url, caption=payment_info, parse_mode="HTML")
+            bot.send_message(user_id, payment_info, parse_mode="HTML")
 
     except Exception as e:
         print("Error sending QR:", e)
-        bot.send_message(call.from_user.id, f"📌 <b>UPI ID:</b> <code>{UPI_ID}</code>\n\nScreenshot yahan bhejein!", parse_mode="HTML")
 
 @bot.message_handler(content_types=['photo'])
 def handle_photo(message):
@@ -102,19 +104,18 @@ def handle_photo(message):
     photo_file_id = message.photo[-1].file_id
 
     caption = (
-        f"🚨 <b>NEW PHOTO / SCREENSHOT RECEIVED!</b> 🚨\n\n"
+        f"🚨 <b>NEW PAYMENT SCREENSHOT RECEIVED!</b> 🚨\n\n"
         f"• <b>From User:</b> {user.first_name}\n"
         f"• <b>Username:</b> {username}\n"
-        f"• <b>User ID:</b> <code>{user.id}</code>\n"
-        f"• <b>Photo File ID:</b> <code>{photo_file_id}</code>"
+        f"• <b>User ID:</b> <code>{user.id}</code>"
     )
     
     try:
         bot.send_photo(ADMIN_ID, photo=photo_file_id, caption=caption, parse_mode="HTML")
     except Exception as e:
-        print("Failed to send photo to admin:", e)
+        print("Failed to send screenshot to admin:", e)
 
-    bot.reply_to(message, f"✅ <b>Received!</b>\nPhoto File ID: <code>{photo_file_id}</code>", parse_mode="HTML")
+    bot.reply_to(message, "✅ <b>Payment Screenshot Received!</b>\nHum aapka payment verify kar rahe hain. Aapki service instant receive ho jayegi.", parse_mode="HTML")
 
 def run_flask():
     port = int(os.environ.get('PORT', 8080))
