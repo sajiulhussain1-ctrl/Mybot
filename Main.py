@@ -4,24 +4,22 @@ from flask import Flask
 from threading import Thread
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, InputMediaPhoto
 
-# Flask App setup for Render Keep-Alive Heartbeat
-app = Flask('')
+# Flask Web Server (Render & Cron-job ping ke liye)
+app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "Bot is alive!"
+    return "Bot is 24/7 Active & Alive!"
 
-def run():
-    port = int(os.environ.get('PORT', 8080))
-    app.run(host='0.0.0.0', port=port)
+@app.route('/health')
+def health():
+    return "OK", 200
 
-Thread(target=run, daemon=True).start()
-
-# Bot Token & Admin Setup
+# Credentials & Admin Settings
 BOT_TOKEN = "8838547784:AAFYDcGPKNTaxkNdWWZ-lV-K0NhbbNGz56Q"
-ADMIN_ID = 8871839919  # Aapki Telegram User ID
+ADMIN_ID = 8871839919
 
-# Aapki 5 HD Promo Photos File IDs
+# 5 HD Promo Photos
 START_PHOTOS = [
     "AgACAgUAAxkBAAM9arY0RSMLm_ceAhQLTtkl67RmHVQAAnYRaxvRprBVNfoyGs0zCpYBAAMCAAN4AAM9BA",
     "AgACAgUAAxkBAAM3arYzmwYknDv6zsIiT3c0KD5f844AAnQRaxvRprBVVpvbLoUMSWIBAAMCAAN4AAM9BA",
@@ -30,7 +28,7 @@ START_PHOTOS = [
     "AgACAgUAAxkBAANFarY0V90s50KM8xU4IE8v2efwS1QAAnkRaxvRprBV1HYT58Mm_mABAAMCAAN4AAM9BA"
 ]
 
-# Aapki HD QR Code File ID
+# HD QR Code
 QR_CODE_FILE_ID = "AgACAgUAAxkBAAMnarYysY5FAr2oOsMR1HStQjDRUmsAAm4SaxtCi7BVoAXUk2SWYycBAAMCAAN4AAM9BA"
 
 bot = telebot.TeleBot(BOT_TOKEN)
@@ -40,7 +38,7 @@ def start_cmd(message):
     user = message.from_user
     username = f"@{user.username}" if user.username else "No Username"
     
-    # 📢 ADMIN ALERT: Naye user ka visit alert aapke paas aayega
+    # Admin Visit Alert
     admin_alert = (
         f"👤 <b>New User Visit!</b>\n\n"
         f"• <b>Name:</b> {user.first_name}\n"
@@ -52,14 +50,14 @@ def start_cmd(message):
     except Exception as e:
         print("Admin alert error:", e)
 
-    # 1. Customer ko 5 HD Promo Photos ka album bhejega
+    # 1. Promo Album
     try:
         media_group = [InputMediaPhoto(photo_id) for photo_id in START_PHOTOS]
         bot.send_media_group(message.chat.id, media_group)
     except Exception as e:
         print("Media group send error:", e)
 
-    # 2. Rate List & Payment Button
+    # 2. Rate List & Pay Button
     pricing_text = (
         "<b>✨ Welcome to Taniya Exclusive Service ✨</b>\n\n"
         "🔥 <b>Available Rates & Packages:</b>\n\n"
@@ -88,7 +86,6 @@ def send_qr_code(call):
     )
     
     try:
-        # HD QR Code Photo ke saath UPI ID caption me aayegi
         bot.send_photo(call.message.chat.id, photo=QR_CODE_FILE_ID, caption=caption_text, parse_mode="HTML")
     except Exception as e:
         fallback_text = (
@@ -108,7 +105,7 @@ def handle_photo(message):
     username = f"@{user.username}" if user.username else "No Username"
     photo_file_id = message.photo[-1].file_id
 
-    # 💰 ADMIN ALERT: Screenshot direct aapke personal account par aayega
+    # Admin Screenshot Alert
     caption = (
         f"🚨 <b>NEW PAYMENT SCREENSHOT RECEIVED!</b> 🚨\n\n"
         f"• <b>From User:</b> {user.first_name}\n"
@@ -121,7 +118,13 @@ def handle_photo(message):
     except Exception as e:
         print("Failed to send screenshot to admin:", e)
 
-    # Customer ko automated confirmation reply
     bot.reply_to(message, "✅ <b>Payment Screenshot Received!</b>\nHum aapka payment verify kar rahe hain. Aapki service instant receive ho jayegi.", parse_mode="HTML")
 
-bot.infinity_polling(timeout=10, long_polling_timeout=5)
+# Flask Server Runner Thread
+def run_flask():
+    port = int(os.environ.get('PORT', 8080))
+    app.run(host='0.0.0.0', port=port)
+
+if __name__ == "__main__":
+    Thread(target=run_flask, daemon=True).start()
+    bot.infinity_polling(timeout=20, long_polling_timeout=10)
