@@ -14,10 +14,10 @@ def home():
 def health():
     return "OK", 200
 
-# Bot Credentials
+# Bot Credentials & Updated UPI ID
 BOT_TOKEN = "8838547784:AAGLp823nS_JpgVjbSHnOBmQUuFQ_mmMSKc"
 ADMIN_ID = 8871839919
-UPI_ID = "mitali55@ptaxis"
+UPI_ID = "paytmqr5ijy2n@ptys"
 
 START_PHOTOS = [
     "AgACAgUAAxkBAAM9arY0RSMLm_ceAhQLTtkl67RmHVQAAnYRaxvRprBVNfoyGs0zCpYBAAMCAAN4AAM9BA",
@@ -73,7 +73,7 @@ def send_qr_code(call):
         bot.answer_callback_query(call.id, text="Generating Payment QR...")
         user_id = call.from_user.id
         
-        # High-Speed Google Charts UPI QR URL
+        # Google API UPI QR Code URL for paytmqr5ijy2n@ptys
         google_qr_url = f"https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=upi://pay?pa={UPI_ID}%26pn=Taniya%20Service"
         
         payment_info = (
@@ -87,7 +87,6 @@ def send_qr_code(call):
         bot.send_photo(user_id, photo=google_qr_url, caption=payment_info, parse_mode="HTML")
     except Exception as e:
         print("Error sending QR:", e)
-        # Fallback if image fails
         bot.send_message(call.from_user.id, f"📌 <b>UPI ID:</b> <code>{UPI_ID}</code>\n\nScreenshot yahan bhejein!", parse_mode="HTML")
 
 @bot.message_handler(content_types=['photo'])
