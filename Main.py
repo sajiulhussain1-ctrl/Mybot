@@ -14,9 +14,10 @@ def home():
 def health():
     return "OK", 200
 
-# Updated Revoked Bot Token
+# Bot Credentials
 BOT_TOKEN = "8838547784:AAGLp823nS_JpgVjbSHnOBmQUuFQ_mmMSKc"
 ADMIN_ID = 8871839919
+UPI_ID = "mitali55@ptaxis"
 
 START_PHOTOS = [
     "AgACAgUAAxkBAAM9arY0RSMLm_ceAhQLTtkl67RmHVQAAnYRaxvRprBVNfoyGs0zCpYBAAMCAAN4AAM9BA",
@@ -69,20 +70,24 @@ def start_cmd(message):
 @bot.callback_query_handler(func=lambda call: call.data == "pay_qr")
 def send_qr_code(call):
     try:
-        bot.answer_callback_query(call.id, text="Sending Payment Details...")
+        bot.answer_callback_query(call.id, text="Generating UPI QR Code...")
         user_id = call.from_user.id
         
+        # Dynamic UPI QR Code URL Generation
+        qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=upi://pay?pa={UPI_ID}%26pn=Taniya%20Exclusive"
+        
         payment_info = (
-            "📌 <b>Payment Details & Instructions:</b>\n\n"
-            "👉 <b>UPI ID:</b> <code>mitali55@ptaxis</code>\n\n"
-            "1️⃣ Direct Upar di gayi UPI ID copy karke pay karein.\n"
-            "2️⃣ Payment complete hone ke baad screenshot is chat me bhejein.\n"
-            "3️⃣ Screenshot milne ke baad aapki service instantly start kar di jayegi! ✅"
+            "📌 <b>Payment Details & QR Code:</b>\n\n"
+            f"👉 <b>UPI ID:</b> <code>{UPI_ID}</code>\n\n"
+            "1️⃣ Upar diye gaye QR Code ko kisi bhi App (PhonePe, Paytm, GooglePay) se scan karein.\n"
+            "2️⃣ Ya UPI ID copy karke direct payment karein.\n"
+            "3️⃣ Payment complete hone ke baad screenshot is chat me bhejein! ✅"
         )
         
-        bot.send_message(user_id, payment_info, parse_mode="HTML")
+        # User ko Photo (QR Code) + Text Caption ek sath bhejna
+        bot.send_photo(user_id, photo=qr_url, caption=payment_info, parse_mode="HTML")
     except Exception as e:
-        print("Error sending payment details:", e)
+        print("Error sending QR and payment details:", e)
 
 @bot.message_handler(content_types=['photo'])
 def handle_photo(message):
